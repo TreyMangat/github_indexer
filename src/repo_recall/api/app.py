@@ -100,7 +100,10 @@ class CatalogSeedDemoRequest(BaseModel):
 
 
 def get_conn() -> Generator[Any, None, None]:
-    conn = connect(settings)
+    try:
+        conn = connect(settings)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"DB connection unavailable: {e}")
     try:
         yield conn
     finally:

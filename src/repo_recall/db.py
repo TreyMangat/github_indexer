@@ -61,6 +61,9 @@ def _to_uuid(v: Any) -> uuid.UUID:
 
 
 def connect(settings: Settings) -> psycopg.Connection[Any]:
+    if not settings.database_url:
+        raise RuntimeError("DATABASE_URL or NEON_CONNECTION_STRING must be set")
+
     conn = psycopg.connect(settings.database_url, row_factory=dict_row)
     try:
         register_vector(conn)

@@ -30,8 +30,8 @@ class Settings(BaseSettings):
     app_env: str = Field(default="dev", alias="APP_ENV")
     mock_mode: bool = Field(default=False, alias="MOCK_MODE")
 
-    database_url: str = Field(
-        ...,
+    database_url: Optional[str] = Field(
+        default=None,
         alias="DATABASE_URL",
         validation_alias=AliasChoices("NEON_CONNECTION_STRING", "DATABASE_URL"),
     )
@@ -103,6 +103,4 @@ class Settings(BaseSettings):
 
 def get_settings() -> Settings:
     # Settings are populated from environment variables / .env at runtime.
-    # Mypy doesn't understand pydantic-settings' env loading, so we ignore the
-    # missing required field error here.
-    return Settings()  # type: ignore[call-arg]
+    return Settings()
