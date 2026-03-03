@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section id="catalog-config" class="card">
+  <h2>Catalog Config</h2>
+  <div class="row">
+    <input id="catalogActorId" class="input" placeholder="Actor ID (e.g. Slack user ID or GitHub login)" />
+    <input id="catalogOrg" class="input" placeholder="Org filter (optional)" />
+    <input id="catalogQuery" class="input" placeholder="Query (repo or branch text)" />
+  </div>
+  <div class="row">
+    <input id="catalogTopRepos" class="input small" type="number" min="1" max="50" value="5" />
+    <input id="catalogTopBranches" class="input small" type="number" min="1" max="50" value="5" />
+    <button id="catalogSuggestBtn" class="button">Suggest</button>
+    <button id="catalogListReposBtn" class="button secondary">List Repos</button>
+  </div>
+  <div id="catalogMsg" class="muted"></div>
+</section>
+
+<section id="catalog-sync" class="card">
+  <h2>Catalog Sync</h2>
+  <div class="row">
+    <input id="catalogToken" class="input" placeholder="GitHub OAuth token (optional for immediate sync)" />
+    <select id="catalogScope" class="input small">
+      <option value="incremental">incremental</option>
+      <option value="full">full</option>
+      <option value="webhook">webhook</option>
+    </select>
+    <input id="catalogRepoFullName" class="input" placeholder="owner/repo (optional targeted sync)" />
+    <button id="catalogSyncBtn" class="button">Queue Sync</button>
+    <button id="catalogRunsBtn" class="button secondary">Load Runs</button>
+  </div>
+  <div id="catalogSyncMsg" class="muted"></div>
+</section>
+
+<section id="catalog-dev" class="card">
+  <h2>Local Demo Tools</h2>
+  <p class="muted">Available when <code>ENABLE_CATALOG_DEV_ENDPOINTS=true</code>.</p>
+  <div class="row">
+    <input id="catalogTokenTtl" class="input small" type="number" min="60" max="86400" value="3600" />
+    <button id="catalogStoreTokenBtn" class="button secondary">Store Actor Token (Dev)</button>
+    <button id="catalogSeedBtn" class="button secondary">Seed Demo Data (Dev)</button>
+  </div>
+  <div id="catalogDevMsg" class="muted"></div>
+</section>
+
+<section id="catalog-results" class="card">
+  <h2>Catalog Results</h2>
+  <div id="catalogSuggestWrap"></div>
+</section>
+
+<section id="catalog-branches" class="card">
+  <h2>Repo Branches</h2>
+  <div class="row">
+    <input id="catalogRepoIdForBranches" class="input" placeholder="repo_id UUID from results table" />
+    <label class="checkbox">
+      <input id="catalogIncludeGenerated" type="checkbox" checked />
+      <span>Include generated branches</span>
+    </label>
+    <button id="catalogBranchesBtn" class="button secondary">Load Branches</button>
+  </div>
+  <div id="catalogBranchesWrap"></div>
+</section>
+
+<section id="catalog-runs" class="card">
+  <h2>Catalog Runs</h2>
+  <div id="catalogRunsWrap"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.repoRecallCatalogUi = {
+    enableDevEndpoints: {{ "true" if enable_catalog_dev_endpoints else "false" }}
+  };
+</script>
+<script src="{{ url_for('static', path='catalog.js') }}"></script>
+{% endblock %}

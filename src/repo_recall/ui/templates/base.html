@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Repo Recall</div>
+      <nav class="nav">
+        <a href="/ui">Recall UI</a>
+        <a href="/ui/catalog">Catalog UI</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <div>
+        <span class="muted">UI is read-only by default. Use the CLI for bulk indexing, or use the Index form for quick tests.</span>
+      </div>
+    </footer>
+
+    {% block scripts %}
+    <script src="{{ url_for('static', path='app.js') }}"></script>
+    {% endblock %}
+  </body>
+</html>

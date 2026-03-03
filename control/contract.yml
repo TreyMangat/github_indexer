@@ -1,0 +1,56 @@
+version: 1
+
+# One machine-readable contract:
+# - risk tiers by path patterns
+# - required checks by tier
+# - docs drift rules for control-plane changes
+# (inspired by Ryan Carson's “Code Factory” control-plane pattern)
+
+risk_tiers:
+  - name: low
+    priority: 10
+    match:
+      - "docs/**"
+      - "**/*.md"
+      - "**/*.txt"
+      - "**/*.rst"
+    required_checks:
+      - "lint"
+      - "unit-tests"
+
+  - name: medium
+    priority: 20
+    match:
+      - "src/**"
+      - "tests/**"
+      - "**/*.py"
+    required_checks:
+      - "lint"
+      - "typecheck"
+      - "unit-tests"
+
+  - name: high
+    priority: 30
+    match:
+      - ".github/**"
+      - "control/**"
+      - "scripts/**"
+      - "Dockerfile"
+      - "docker-compose.yml"
+    required_checks:
+      - "lint"
+      - "typecheck"
+      - "unit-tests"
+      - "security"
+
+docs_drift_rules:
+  - name: "contract_updates_require_policy_doc"
+    when_changed:
+      - "control/contract.yml"
+    require_updated:
+      - "docs/POLICY.md"
+
+# Placeholder for future requirements (e.g., browser evidence, harness manifests)
+evidence_requirements:
+  ui_flows:
+    enabled: false

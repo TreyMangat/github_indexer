@@ -1,0 +1,3 @@
+include src/repo_recall/schema.sql
+recursive-include src/repo_recall/ui/templates *.html
+recursive-include src/repo_recall/ui/static *

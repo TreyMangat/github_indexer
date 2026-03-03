@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section id="status" class="card">
+  <h2>Status</h2>
+  <div class="grid">
+    <div>
+      <div class="label">Health</div>
+      <pre id="health" class="pre">Loading…</pre>
+    </div>
+    <div>
+      <div class="label">Ready</div>
+      <pre id="ready" class="pre">Loading…</pre>
+    </div>
+    <div>
+      <div class="label">Runtime</div>
+      <pre id="runtime" class="pre">Loading…</pre>
+    </div>
+    <div>
+      <div class="label">Index Stats</div>
+      <pre id="stats" class="pre">Loading…</pre>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label">API token (optional)</div>
+    <input id="tokenInput" class="input" placeholder="X-FF-Token / Bearer token" />
+    <button id="saveToken" class="button">Save token</button>
+    <button id="clearToken" class="button secondary">Clear</button>
+    <span class="muted">Saved in localStorage for this browser.</span>
+  </div>
+</section>
+
+<section id="search" class="card">
+  <h2>Search</h2>
+  <div class="row">
+    <input id="queryInput" class="input" placeholder="e.g. Where do we handle webhook retries?" />
+    <input id="topKRepos" class="input small" type="number" min="1" max="20" value="5" />
+    <input id="topKChunks" class="input small" type="number" min="1" max="10" value="3" />
+    <button id="runSearch" class="button">Search</button>
+  </div>
+  <div id="searchError" class="error" style="display:none"></div>
+  <div id="searchResults" class="results"></div>
+</section>
+
+<section id="index" class="card">
+  <h2>Quick index</h2>
+  <p class="muted">Good for verifying indexing works. For bulk indexing, use the CLI.</p>
+  <div class="row">
+    <input id="repoRefInput" class="input" placeholder="/path/to/repo or https://github.com/org/repo.git" />
+    <label class="checkbox">
+      <input id="incremental" type="checkbox" checked />
+      <span>Incremental</span>
+    </label>
+    <button id="runIndex" class="button">Index</button>
+  </div>
+  <div id="indexMsg" class="muted"></div>
+</section>
+
+<section id="repos" class="card">
+  <h2>Indexed repos</h2>
+  <div class="row">
+    <button id="refreshRepos" class="button secondary">Refresh</button>
+    <span class="muted">Showing most recently indexed repos.</span>
+  </div>
+  <div id="reposTableWrap"></div>
+</section>
+
+<section id="runs" class="card">
+  <h2>Index runs</h2>
+  <div class="row">
+    <button id="refreshRuns" class="button secondary">Refresh</button>
+    <span class="muted">Most recent background indexing jobs.</span>
+  </div>
+  <div id="runsTableWrap"></div>
+</section>
+{% endblock %}
