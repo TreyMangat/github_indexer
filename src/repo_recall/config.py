@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal, Optional
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AuthMode = Literal["disabled", "api_token"]
@@ -20,13 +20,21 @@ class Settings(BaseSettings):
       Repo Recall accepts either `X-FF-Token` or `Authorization: Bearer <token>`.
     """
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     # --- Core ---
     app_env: str = Field(default="dev", alias="APP_ENV")
     mock_mode: bool = Field(default=False, alias="MOCK_MODE")
 
-    database_url: str = Field(..., alias="DATABASE_URL")
+    database_url: str = Field(
+        ...,
+        alias="DATABASE_URL",
+        validation_alias=AliasChoices("NEON_CONNECTION_STRING", "DATABASE_URL"),
+    )
 
     # --- Embeddings ---
     openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
@@ -49,6 +57,7 @@ class Settings(BaseSettings):
 
     # --- Service behavior ---
     init_db_on_startup: bool = Field(default=True, alias="INIT_DB_ON_STARTUP")
+    fail_fast_startup: bool = Field(default=False, alias="FAIL_FAST_STARTUP")
     enable_ui: bool = Field(default=True, alias="ENABLE_UI")
 
     # Background job runner for UI-triggered indexing.

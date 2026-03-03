@@ -47,6 +47,7 @@ settings: Settings = get_settings()
 job_runner: Optional[JobRunner] = None
 catalog_job_runner: Optional[CatalogJobRunner] = None
 catalog_scheduler: Optional[CatalogSweepScheduler] = None
+startup_issues: list[str] = []
 
 
 # --- Models ---
@@ -155,30 +156,56 @@ def _require_catalog_dev_endpoints() -> None:
 
 @app.on_event("startup")
 def _startup() -> None:
+    startup_issues.clear()
+
     if settings.init_db_on_startup:
-        with connect(settings) as conn:
-            init_db(conn)
-        logger.info("DB initialized")
+        try:
+            with connect(settings) as conn:
+                init_db(conn)
+            logger.info("DB initialized")
+        except Exception as e:
+            message = f"DB init on startup failed: {e}"
+            if settings.fail_fast_startup:
+                raise
+            startup_issues.append(message)
+            logger.exception(message)
 
     global job_runner
     if settings.enable_ui:
-        job_runner = JobRunner(settings)
-        logger.info("Job runner started (JOB_WORKERS=%d)", settings.job_workers)
+        try:
+            job_runner = JobRunner(settings)
+            logger.info("Job runner started (JOB_WORKERS=%d)", settings.job_workers)
+        except Exception as e:
+            message = f"UI job runner startup failed: {e}"
+            if settings.fail_fast_startup:
+                raise
+            startup_issues.append(message)
+            logger.exception(message)
 
     global catalog_job_runner, catalog_scheduler
     if settings.enable_catalog:
-        catalog_job_runner = CatalogJobRunner(settings)
-        catalog_scheduler = CatalogSweepScheduler(
-            runner=catalog_job_runner,
-            interval_seconds=settings.catalog_sync_interval_seconds,
-        )
-        catalog_scheduler.start()
-        logger.info(
-            "Catalog runner started (interval=%ss)",
-            settings.catalog_sync_interval_seconds,
-        )
+        try:
+            catalog_job_runner = CatalogJobRunner(settings)
+            catalog_scheduler = CatalogSweepScheduler(
+                runner=catalog_job_runner,
+                interval_seconds=settings.catalog_sync_interval_seconds,
+            )
+            catalog_scheduler.start()
+            logger.info(
+                "Catalog runner started (interval=%ss)",
+                settings.catalog_sync_interval_seconds,
+            )
+        except Exception as e:
+            message = f"Catalog runner startup failed: {e}"
+            if settings.fail_fast_startup:
+                raise
+            startup_issues.append(message)
+            logger.exception(message)
 
-    logger.info("API started")
+    if startup_issues:
+        logger.warning("API started with startup issues: %s", startup_issues)
+    else:
+        logger.info("API started")
 
 
 @app.on_event("shutdown")
@@ -299,6 +326,7 @@ def runtime() -> dict[str, Any]:
         "build": {
             "git_sha": os.environ.get("GIT_SHA") or os.environ.get("GITHUB_SHA"),
         },
+        "startup_issues": startup_issues,
     }
 
 
